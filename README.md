@@ -20,10 +20,10 @@ You should now have it available as a Cargo subcommand:
 cargo stylus --help
 ```
 
-Then, clone the template:
+Then, clone the repository:
 
 ```
-git clone https://github.com/OffchainLabs/stylus-hello-world && cd stylus-hello-world
+git clone https://github.com/bidzyyys/stylus-erc20-workshop.git && cd stylus-erc20-workshop
 ```
 
 ### Testnet Information
@@ -42,7 +42,8 @@ Exporting ABIs uses a feature that is enabled by default in your Cargo.toml:
 
 ```toml
 [features]
-export-abi = ["stylus-sdk/export-abi"]
+# stylus-sdk/export-abi will be enabled automatically.
+export-abi = ["openzeppelin-stylus/export-abi"]
 ```
 
 ## Deploying
@@ -57,110 +58,133 @@ cargo stylus check -e=https://sepolia-rollup.arbitrum.io/rpc
 If successful, you should see:
 
 ```bash
-Finished release [optimized] target(s) in 1.88s
-Reading WASM file at stylus-hello-world/target/wasm32-unknown-unknown/release/stylus-hello-world.wasm
-Compressed WASM size: 8.9 KB
-Program succeeded Stylus onchain activation checks with Stylus version: 1
+Finished `release` profile [optimized] target(s) in 0.47s
+stripped custom section from user wasm to remove any sensitive data
+contract size: 20.6 KiB (21060 bytes)
+wasm size: 77.4 KiB (79229 bytes)
+File used for deployment hash: ./Cargo.lock
+File used for deployment hash: ./Cargo.toml
+File used for deployment hash: ./examples/erc20.rs
+File used for deployment hash: ./rust-toolchain.toml
+File used for deployment hash: ./src/lib.rs
+File used for deployment hash: ./src/main.rs
+project metadata hash computed on deployment: "6880d567b1aac186ff74377edb868e3827c46e09f32e7c989ff9b8b6cb56b743"
+stripped custom section from user wasm to remove any sensitive data
+contract size: 20.6 KiB (21060 bytes)
+wasm data fee: 0.000119 ETH (originally 0.000099 ETH with 20% bump)
 ```
 
-Next, we can estimate the gas costs to deploy and activate our program before we send our transaction. Check out the [cargo-stylus](https://github.com/OffchainLabs/cargo-stylus) README to see the different wallet options for this step:
+At first, build the Stylus contract:
 
 ```bash
-cargo stylus deploy \
-  --private-key-path=<PRIVKEY_FILE_PATH> \
-  --estimate-gas
+cargo build --release --target wasm32-unknown-unknown \
+  -Z build-std=std,panic_abort \
+  -Z build-std-features=panic_immediate_abort
 ```
-
-You will then see the estimated gas cost for deploying before transacting:
-
-```bash
-Deploying program to address e43a32b54e48c7ec0d3d9ed2d628783c23d65020
-Estimated gas for deployment: 1874876
-```
-
-The above only estimates gas for the deployment tx by default. To estimate gas for activation, first deploy your program using `--mode=deploy-only`, and then run `cargo stylus deploy` with the `--estimate-gas` flag, `--mode=activate-only`, and specify `--activate-program-address`.
 
 Here's how to deploy:
 
 ```bash
 cargo stylus deploy \
-  --private-key-path=<PRIVKEY_FILE_PATH>
+  -e=$RPC_URL \
+  --private-key=$PRIV_KEY \
+  --wasm-file=$WASM_FILE \
+  --no-verify \
+  --deployer-address=$DEPLOYER_ADDRESS \
+  --constructor-signature 'constructor(string,string,address)' \
+  --constructor-args 'Stylus ERC-20 Workshop' 'MTK' '0x3f1eae7d46d88f08fc2f8ed27fcb2ab183eb2d0e'
 ```
 
 The CLI will send 2 transactions to deploy and activate your program onchain.
 
 ```bash
-Compressed WASM size: 8.9 KB
-Deploying program to address 0x457b1ba688e9854bdbed2f473f7510c476a3da09
-Estimated gas: 1973450
-Submitting tx...
-Confirmed tx 0x42db…7311, gas used 1973450
-Activating program at address 0x457b1ba688e9854bdbed2f473f7510c476a3da09
-Estimated gas: 14044638
-Submitting tx...
-Confirmed tx 0x0bdb…3307, gas used 14044638
+stripped custom section from user wasm to remove any sensitive data
+contract size: 20.6 KiB (21060 bytes)
+wasm data fee: 0.000119 ETH (originally 0.000099 ETH with 20% bump)
+deployed code at address: 0xab8e440727a38bbb180f7032ca4a8009e7b52b80
+deployment tx hash: 0xda299455085217063044d9ab71b912879e00896b236e4d37dfdef4e76cc993c5
+
+NOTE: We recommend running cargo stylus cache bid ab8e440727a38bbb180f7032ca4a8009e7b52b80 0 to cache your activated contract in ArbOS.
+Cached contracts benefit from cheaper calls. To read more about the Stylus contract cache, see
+https://docs.arbitrum.io/stylus/how-tos/caching-contracts
+```
+
+You can also add your contract to the [Cache Manager](https://docs.arbitrum.io/stylus/how-tos/caching-contracts#cachemanager-contract):
+
+```bash
+cargo stylus cache bid $STYLUS_CONTRACT_ADDRESS 0 --private-key=$PRIV_KEY
 ```
 
 Once both steps are successful, you can interact with your program as you would with any Ethereum smart contract.
 
 ## Calling Your Program
 
-This template includes an example of how to call and transact with your program in Rust using [ethers-rs](https://github.com/gakonst/ethers-rs) under the `examples/counter.rs`. However, your programs are also Ethereum ABI equivalent if using the Stylus SDK. **They can be called and transacted with using any other Ethereum tooling.**
+This template includes an example of how to call and transact with your program in Rust using [ethers-rs](https://github.com/gakonst/ethers-rs) under the `examples/erc20.rs`. However, your programs are also Ethereum ABI equivalent if using the Stylus SDK. **They can be called and transacted with using any other Ethereum tooling.**
 
 By using the program address from your deployment step above, and your wallet, you can attempt to call the counter program and increase its value in storage:
 
 ```rs
 abigen!(
-    Counter,
+    Erc20Workshop,
     r#"[
-        function number() external view returns (uint256)
-        function setNumber(uint256 number) external
-        function increment() external
+        function totalSupply() external view returns (uint256 totalSupply)
+        function balanceOf(address account) external view returns (uint256 balance)
+        function transfer(address recipient, uint256 amount) external returns (bool)
+        function allowance(address owner, address spender) external view returns (uint256 allowance)
+        function approve(address spender, uint256 amount) external returns (bool)
+        function transferFrom(address sender, address recipient, uint256 amount) external returns (bool)
+
+        function burn(uint256 amount) external
+        function burnFrom(address account, uint256 amount) external
+
+        function name() external view returns (string name)
+        function symbol() external view returns (string symbol)
+        function decimals() external view returns (uint8 decimals)
+
+        function mint(address account, uint256 amount) external
+
+        function owner() external view returns (address owner)
+        function transferOwnership(address newOwner) external
+        function renounceOwnership() external
     ]"#
 );
-let counter = Counter::new(address, client);
-let num = counter.number().call().await;
-println!("Counter number value = {:?}", num);
+let token = Erc20Workshop::new(address, client);
 
-let _ = counter.increment().send().await?.await?;
-println!("Successfully incremented counter via a tx");
+// Read token metadata.
+let name: String = token.name().call().await?;
+println!("Token name = {:?}\n", name);
 
-let num = counter.number().call().await;
-println!("New counter number value = {:?}", num);
+// Read initial balance.
+let initial_balance: U256 = token.balance_of(wallet.address()).call().await?;
+println!("Initial balance = {:?}\n", initial_balance);
+
+// Mint tokens.
+let amount = U256::from(1000000000);
+let pending = token.mint(wallet.address(), amount);
+if let Some(receipt) = pending.send().await?.await? {
+    println!("Receipt = {:?}\n", receipt);
+}
+println!("Successfully minted tokens via a tx\n");
+
+// Read final balance.
+let final_balance: U256 = token.balance_of(wallet.address()).call().await?;
+println!("Final balance = {:?}\n", final_balance);
 ```
 
 Before running, set the following env vars or place them in a `.env` file (see: [.env.example](./.env.example)) in this project:
 
 ```
-RPC_URL=https://sepolia-rollup.arbitrum.io/rpc
+RPC_URL=http://localhost:8547
 STYLUS_CONTRACT_ADDRESS=<the onchain address of your deployed program>
-PRIV_KEY_PATH=<the file path for your priv key to transact with>
+PRIV_KEY=<your priv key to transact with>
+WASM_FILE=./target/wasm32-unknown-unknown/release/stylus_erc20_workshop.wasm
+DEPLOYER_ADDRESS=0xcEcba2F1DC234f70Dd89F2041029807F8D03A990
 ```
 
 Next, run:
 
 ```
-cargo run --example counter --target=<YOUR_ARCHITECTURE>
+cargo run --example erc20 --target=<YOUR_ARCHITECTURE>
 ```
 
 Where you can find `YOUR_ARCHITECTURE` by running `rustc -vV | grep host`. For M1 Apple computers, for example, this is `aarch64-apple-darwin` and for most Linux x86 it is `x86_64-unknown-linux-gnu`
-
-## Build Options
-
-By default, the cargo stylus tool will build your project for WASM using sensible optimizations, but you can control how this gets compiled by seeing the full README for [cargo stylus](https://github.com/OffchainLabs/cargo-stylus). If you wish to optimize the size of your compiled WASM, see the different options available [here](https://github.com/OffchainLabs/cargo-stylus/blob/main/OPTIMIZING_BINARIES.md).
-
-## Peeking Under the Hood
-
-The [stylus-sdk](https://github.com/OffchainLabs/stylus-sdk-rs) contains many features for writing Stylus programs in Rust. It also provides helpful macros to make the experience for Solidity developers easier. These macros expand your code into pure Rust code that can then be compiled to WASM. If you want to see what the `stylus-hello-world` boilerplate expands into, you can use `cargo expand` to see the pure Rust code that will be deployed onchain.
-
-First, run `cargo install cargo-expand` if you don't have the subcommand already, then:
-
-```
-cargo expand --all-features --release --target=<YOUR_ARCHITECTURE>
-```
-
-Where you can find `YOUR_ARCHITECTURE` by running `rustc -vV | grep host`. For M1 Apple computers, for example, this is `aarch64-apple-darwin`.
-
-## License
-
-This project is fully open source, including an Apache-2.0 or MIT license at your choosing under your own copyright.
