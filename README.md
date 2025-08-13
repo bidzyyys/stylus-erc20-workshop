@@ -68,7 +68,7 @@ File used for deployment hash: ./examples/erc20.rs
 File used for deployment hash: ./rust-toolchain.toml
 File used for deployment hash: ./src/lib.rs
 File used for deployment hash: ./src/main.rs
-project metadata hash computed on deployment: "cf2086661d1773435bb6957b5fffe13b22adac545e054e53f547a77ab1f83d8a"
+project metadata hash computed on deployment: "ffcc9fa3f5cea8e6782a9a97df2bda51f35eae24567ecbf4a7f70828b054bc69"
 stripped custom section from user wasm to remove any sensitive data
 contract size: 20.5 KiB (20985 bytes)
 wasm data fee: 0.000118 ETH (originally 0.000099 ETH with 20% bump)
