@@ -7,7 +7,7 @@ extern crate alloc;
 
 use alloc::vec::Vec;
 
-use openzeppelin_stylus::token::erc20::{self, Erc20, IErc20};
+use openzeppelin_stylus::token::erc20::{self, extensions::IErc20Burnable, Erc20, IErc20};
 use stylus_sdk::{
     alloy_primitives::{Address, U256},
     prelude::*,
@@ -23,7 +23,7 @@ struct Erc20Workshop {
 
 /// Declare that `Erc20Workshop` is a contract with the following external methods.
 #[public]
-#[implements(IErc20<Error = erc20::Error>)]
+#[implements(IErc20<Error = erc20::Error>, IErc20Burnable<Error = erc20::Error>)]
 impl Erc20Workshop {}
 
 #[public]
@@ -57,5 +57,18 @@ impl IErc20 for Erc20Workshop {
         value: U256,
     ) -> Result<bool, Self::Error> {
         self.erc20.transfer_from(from, to, value)
+    }
+}
+
+#[public]
+impl IErc20Burnable for Erc20Workshop {
+    type Error = erc20::Error;
+
+    fn burn(&mut self, value: U256) -> Result<(), Self::Error> {
+        self.erc20.burn(value)
+    }
+
+    fn burn_from(&mut self, account: Address, value: U256) -> Result<(), Self::Error> {
+        self.erc20.burn_from(account, value)
     }
 }
