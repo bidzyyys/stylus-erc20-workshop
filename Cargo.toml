@@ -1,12 +1,9 @@
 [package]
 name = "stylus-erc20-workshop"
-version = "0.1.11"
+version = "0.1.0"
 edition = "2021"
-license = "MIT OR Apache-2.0"
-homepage = "https://github.com/OffchainLabs/stylus-hello-world"
-repository = "https://github.com/OffchainLabs/stylus-hello-world"
-keywords = ["arbitrum", "ethereum", "stylus", "alloy"]
-description = "Stylus hello world example"
+license = "MIT"
+description = "Stylus ERC-20 Workshop"
 
 [dependencies]
 openzeppelin-stylus = "=0.3.0-rc.1"
