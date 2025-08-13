@@ -60,18 +60,18 @@ If successful, you should see:
 ```bash
 Finished `release` profile [optimized] target(s) in 0.47s
 stripped custom section from user wasm to remove any sensitive data
-contract size: 20.6 KiB (21060 bytes)
-wasm size: 77.4 KiB (79229 bytes)
+contract size: 20.5 KiB (20985 bytes)
+wasm size: 77.1 KiB (78903 bytes)
 File used for deployment hash: ./Cargo.lock
 File used for deployment hash: ./Cargo.toml
 File used for deployment hash: ./examples/erc20.rs
 File used for deployment hash: ./rust-toolchain.toml
 File used for deployment hash: ./src/lib.rs
 File used for deployment hash: ./src/main.rs
-project metadata hash computed on deployment: "6880d567b1aac186ff74377edb868e3827c46e09f32e7c989ff9b8b6cb56b743"
+project metadata hash computed on deployment: "cf2086661d1773435bb6957b5fffe13b22adac545e054e53f547a77ab1f83d8a"
 stripped custom section from user wasm to remove any sensitive data
-contract size: 20.6 KiB (21060 bytes)
-wasm data fee: 0.000119 ETH (originally 0.000099 ETH with 20% bump)
+contract size: 20.5 KiB (20985 bytes)
+wasm data fee: 0.000118 ETH (originally 0.000099 ETH with 20% bump)
 ```
 
 At first, build the Stylus contract:
@@ -99,10 +99,10 @@ The CLI will send 2 transactions to deploy and activate your program onchain.
 
 ```bash
 stripped custom section from user wasm to remove any sensitive data
-contract size: 20.6 KiB (21060 bytes)
-wasm data fee: 0.000119 ETH (originally 0.000099 ETH with 20% bump)
+contract size: 20.5 KiB (20985 bytes)
+wasm data fee: 0.000118 ETH (originally 0.000099 ETH with 20% bump)
 deployed code at address: 0xab8e440727a38bbb180f7032ca4a8009e7b52b80
-deployment tx hash: 0xda299455085217063044d9ab71b912879e00896b236e4d37dfdef4e76cc993c5
+deployment tx hash: 0x721dc5c9c177448a4a929e56f0a0b161ef8ccb666646cb7b0b6e67ed39266f0c
 
 NOTE: We recommend running cargo stylus cache bid ab8e440727a38bbb180f7032ca4a8009e7b52b80 0 to cache your activated contract in ArbOS.
 Cached contracts benefit from cheaper calls. To read more about the Stylus contract cache, see
@@ -113,6 +113,15 @@ You can also add your contract to the [Cache Manager](https://docs.arbitrum.io/s
 
 ```bash
 cargo stylus cache bid $STYLUS_CONTRACT_ADDRESS 0 --private-key=$PRIV_KEY
+```
+
+If successful, you should see:
+
+```bash
+Checking if contract can be cached...
+Sending cache bid tx...
+Successfully cached contract at address: 0xab8e440727A38bBB180f7032ca4a8009E7b52B80
+Sent Stylus cache bid tx with hash: 0x9839cdd19646a1cd7b2273634e918afc6587d13855f8ae4ec65b2586f4aeae2c
 ```
 
 Once both steps are successful, you can interact with your program as you would with any Ethereum smart contract.

@@ -2428,9 +2428,9 @@ dependencies = [
 
 [[package]]
 name = "openzeppelin-stylus"
-version = "0.3.0-rc.1"
+version = "0.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e7337febe65489d1f4a68a95936b026e8fec587c1778cdfd329ecdc600da4a9c"
+checksum = "4a5bdc0165c9dd0628a88cbeb8c059b59fdb301156364c6759d838cbd4a581a2"
 dependencies = [
  "alloy-primitives",
  "alloy-sol-macro",
@@ -2444,9 +2444,9 @@ dependencies = [
 
 [[package]]
 name = "openzeppelin-stylus-proc"
-version = "0.3.0"
+version = "0.2.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e070fcdfd2bc4cd6dcd32d61797467439277d7cc8e7eea73dd42c7ccd22b0e1d"
+checksum = "f592a114a2f3bbfb29303435064b4444ea3d9c4283b667f551a8543e8da8896f"
 dependencies = [
  "convert_case",
  "proc-macro2",
