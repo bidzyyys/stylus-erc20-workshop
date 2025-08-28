@@ -7,7 +7,7 @@ extern crate alloc;
 
 use alloc::string::String;
 use alloc::vec::Vec;
-use openzeppelin_stylus::access::ownable::{self, IOwnable, Ownable};
+use openzeppelin_stylus::access::ownable::{IOwnable, Ownable};
 use openzeppelin_stylus::token::erc20::{
     self,
     extensions::{Erc20Metadata, IErc20Burnable, IErc20Metadata},
@@ -31,7 +31,7 @@ struct Erc20Workshop {
 
 /// Declare that `Erc20Workshop` is a contract with the following external methods.
 #[public]
-#[implements(IErc20<Error = erc20::Error>, IErc20Burnable<Error = erc20::Error>, IErc20Metadata, IErc165, IOwnable<Error = ownable::Error>)]
+#[implements(IErc20<Error = erc20::Error>, IErc20Burnable<Error = erc20::Error>, IErc20Metadata, IErc165, IOwnable)]
 impl Erc20Workshop {
     #[constructor]
     pub fn constructor(
@@ -124,17 +124,16 @@ impl IErc165 for Erc20Workshop {
 
 #[public]
 impl IOwnable for Erc20Workshop {
-    type Error = ownable::Error;
     fn owner(&self) -> Address {
         self.ownable.owner()
     }
 
-    fn transfer_ownership(&mut self, new_owner: Address) -> Result<(), Self::Error> {
-        self.ownable.transfer_ownership(new_owner)
+    fn transfer_ownership(&mut self, new_owner: Address) -> Result<(), Vec<u8>> {
+        Ok(self.ownable.transfer_ownership(new_owner)?)
     }
 
-    fn renounce_ownership(&mut self) -> Result<(), Self::Error> {
-        self.ownable.renounce_ownership()
+    fn renounce_ownership(&mut self) -> Result<(), Vec<u8>> {
+        Ok(self.ownable.renounce_ownership()?)
     }
 }
 
